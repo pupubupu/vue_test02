@@ -1,12 +1,14 @@
 <template>
 	<li>
 		<label>
-			<input type="checkbox" :checked="todo.done" @change="handleCheck(todo.id)"/>
+			<input type="checkbox" :checked="todo.done" @change="handleCheck(todo.id)" v-show="!todo.isEdit"/>
+      <input type="text" v-show="todo.isEdit" :value="todo.title" @blur="handleBlur(todo,$event)" ref="edit"/>
 			<!-- 如下代码也能实现功能，但是不太推荐，因为有点违反原则，因为修改了props -->
 			<!-- <input type="checkbox" v-model="todo.done"/> -->
-			<span>{{todo.title}}</span>
+			<span v-show="!todo.isEdit">{{todo.title}}</span>
 		</label>
 		<button class="btn btn-danger" @click="handleDelete(todo.id)">删除</button>
+    <button class="btn btn-edit" @click="handleEdit(todo)">编辑</button>
 	</li>
 </template>
 
@@ -16,6 +18,11 @@
 		name:'MyItem',
 		//声明接收todo
 		props:['todo'],
+    data(){
+      return{
+        display: false
+      }
+    },
 		methods: {
 			//勾选or取消勾选
 			handleCheck(id){
@@ -31,8 +38,23 @@
 					// this.$bus.$emit('deleteTodo',id)
 					pubsub.publish('deleteTodo',id)
 				}
-			}
-		},
+			},
+      //编辑
+      handleEdit(todo){
+        if('isEdit' in todo){ //判断是否是第一次点击编辑按钮，如果是，则添加响应式数据isEdit(是否编辑状态)
+          todo.isEdit = !todo.isEdit
+        }else{
+          this.$set(todo,'isEdit',true)
+        }
+        // setTimeout(()=>{
+        //   this.$refs.edit.focus()
+        // },)
+      },
+      handleBlur(todo,e){
+        this.$bus.$emit('updateTodo',todo.id, e.target.value)
+        todo.isEdit = false
+      }
+		}
 	}
 </script>
 

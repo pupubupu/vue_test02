@@ -36,6 +36,12 @@ export default {
         if(todo.id === id) todo.done = !todo.done
       })
     },
+    //编辑一个todo
+    updateTodo(id,value){
+      this.todos.forEach((todo)=>{
+        if(todo.id === id) todo.title = value
+      })
+    },
     //删除一个todo
     deleteTodo(_,id){
       this.todos = this.todos.filter( todo => todo.id !== id )
@@ -63,10 +69,12 @@ export default {
   },
   mounted() {
     this.$bus.$on('checkTodo',this.checkTodo)
+    this.$bus.$on('updateTodo',this.updateTodo)
     this.pubId = pubsub.subscribe('deleteTodo',this.deleteTodo)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.$bus.$off('checkTodo')
+    this.$bus.$off('updateTodo')
     pubsub.unsubscribe(this.pubId)
   },
 }
@@ -97,6 +105,12 @@ body {
 .btn-danger:hover {
   color: #fff;
   background-color: #bd362f;
+}
+.btn-edit {
+  color: #fff;
+  background-color: skyblue;
+  border: 1px solid #12caef;
+  margin-right: 5px;
 }
 .btn:focus {
   outline: none;
